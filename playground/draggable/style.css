@@ -1,0 +1,37 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+h1,
+p {
+  text-align: center;
+  padding: 5px 0;
+}
+
+#mydiv {
+  position: absolute;
+  z-index: 9;
+  background-color: #f1f1f1;
+  border: 1px solid #d3d3d3;
+  text-align: center;
+}
+
+#mydivheader {
+  padding: 10px;
+  cursor: move;
+  z-index: 10;
+  background-color: #2196f3;
+  color: #fff;
+}
+
+.pre {
+  display: block;
+  padding: 14px 24px;
+  font-size: larger;
+  font-weight: 500;
+  opacity: 0.8;
+  color: #1173c4;
+  background-color: rgb(170, 168, 168);
+}
