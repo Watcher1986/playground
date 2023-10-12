@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>html &lt;map&gt; tag</title>
+  </head>
+  <body>
+    <h1>The map and area elements</h1>
+
+    <p>Click on the sun or on one of the planets to watch it closer:</p>
+
+    <img
+      src="rain-drops.jpg"
+      width="500"
+      height="375"
+      alt="Planets"
+      usemap="#planetmap"
+    />
+
+    <map name="planetmap">
+      <area shape="rect" coords="0,0,82,126" alt="Sun" href="sun.htm" />
+      <area shape="circle" coords="90,58,3" alt="Mercury" href="mercur.htm" />
+      <area shape="circle" coords="124,58,8" alt="Venus" href="venus.htm" />
+    </map>
+  </body>
+</html>

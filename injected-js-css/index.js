@@ -3,6 +3,8 @@ let totalPrice = 0;
 let isEmpty = true;
 let initialEmptyCartItem;
 let checkoutBtnPrice;
+let currVariant;
+let quantity = 1;
 
 const currencyNormalize = (amount) => {
   const fixedAmount = (amount / 100).toFixed(2);
@@ -31,6 +33,17 @@ async function getProduct(product_name) {
     .then((data) => data);
 }
 
+const changeVariant = (variant) => {
+  const img = document.querySelector('.CartItem__Image');
+  img.src = variant.featured_image.src;
+  img.alt = variant.featured_image.alt;
+
+  document.querySelector('.CartItem__Variant').innerText = variant.title;
+  document.querySelector('.CartItem__Price').innerText = currencyNormalize(
+    variant.price
+  );
+};
+
 // generate cart image
 const getCartImage = (imgSrc, altText) => {
   const imageWrapper = createNode('div', [
@@ -44,6 +57,7 @@ const getCartImage = (imgSrc, altText) => {
   const image = createNode('img', ['CartItem__Image']);
   image.src = imgSrc;
   image.alt = altText;
+  image.setAttribute('draggable', true);
 
   imgAspectRatio.appendChild(image);
   imageWrapper.appendChild(imgAspectRatio);
@@ -52,7 +66,6 @@ const getCartImage = (imgSrc, altText) => {
 };
 
 const getPopularProdActionsWrapper = (cartItemWrapper, price) => {
-  let quantity = 1;
   const actionsWrapper = createNode('div', ['CartItem__Actions', 'Heading']);
   !isEmpty && (actionsWrapper.style.justifyContent = 'space-between');
   actionsWrapper.style.width = isEmpty ? 'max-content' : 'auto';
@@ -117,6 +130,7 @@ const getPopularProdActionsWrapper = (cartItemWrapper, price) => {
     cartItemList.removeChild(cartItemWrapper);
     if (!getCartProdsCount()) {
       isEmpty = true;
+      totalPrice = quantity * price;
       removeCartFooter();
       cartItemList.appendChild(initialEmptyCartItem);
     }
@@ -128,8 +142,7 @@ const getPopularProdActionsWrapper = (cartItemWrapper, price) => {
   addToCartBtn.onclick = (e) => {
     e.preventDefault();
     isEmpty = false;
-    const { cartItemWrapper, itemPrice } = generateCartItem(popularProd);
-    totalPrice += itemPrice;
+    const { cartItemWrapper } = generateCartItem(popularProd);
     const cartFooter = generateCartFooter();
     const cartItemList = document.querySelector('.Cart__ItemList');
     const cartBody = document.querySelector('.cart-body-form');
@@ -146,11 +159,19 @@ const getPopularProdActionsWrapper = (cartItemWrapper, price) => {
 };
 
 function generateCartItem(product) {
-  let variant = product.variants[0];
+  let variant = isEmpty ? product.variants[0] : currVariant;
+  console.log(
+    'LOOK WHAT WE HAVE GOT HERE =>>>>>>>>>>>>>>>',
+    variant,
+    product,
+    isEmpty,
+    popularProd
+  );
   let itemImg = variant.featured_image.src;
   let itemImgAltText = variant.featured_image?.alt;
   let itemName = product.title;
   let itemPrice = variant.price;
+  totalPrice = quantity * itemPrice;
 
   const cartItemWrapper = createNode('div', ['CartItemWrapper']);
   const cartItem = createNode('div', ['CartItem']);
@@ -169,12 +190,14 @@ function generateCartItem(product) {
 
   const cartItemPriceList = createNode('div', ['CartItem__PriceList']);
   const cartItemPrice = createNode('span', ['CartItem__Price', 'Price']);
-  cartItemPrice.innerText = currencyNormalize(itemPrice);
+  cartItemPrice.innerText = currencyNormalize(itemPrice * quantity);
   cartItemPriceList.appendChild(cartItemPrice);
   cartItemMeta.appendChild(cartItemPriceList);
 
   cartItemInfo.appendChild(cartItemName);
   cartItemInfo.appendChild(cartItemMeta);
+  const variantsSelector = getVariantsSelector(product);
+  isEmpty && cartItemInfo.appendChild(variantsSelector);
   const actions = getPopularProdActionsWrapper(cartItemWrapper, itemPrice);
   cartItemInfo.appendChild(actions);
 
@@ -250,6 +273,26 @@ function generateCartFooter() {
   return cartFooter;
 }
 
+function getVariantsSelector(product) {
+  const variantsSelector = createNode('select', ['variants-selector']);
+  currVariant = product?.variants[0];
+
+  product?.variants.forEach((variant) => {
+    const variantOption = createNode('option', ['variants-selector-option']);
+    variantOption.innerText = variant.title;
+    variantOption.value = variant.barcode;
+    variantsSelector.appendChild(variantOption);
+  });
+
+  variantsSelector.onchange = (e) => {
+    const variant = product.variants.find((v) => v.barcode === e.target.value);
+    currVariant = variant;
+    changeVariant(variant);
+  };
+
+  return variantsSelector;
+}
+
 function generateCartBody(cartItem) {
   const drawerContent = createNode('form', ['cart-body-form']);
   drawerContent.action = '/cart';
@@ -281,11 +324,7 @@ function handleEmptyCart() {
     const { cartItemWrapper } = generateCartItem(popularProd);
     generateCartBody(cartItemWrapper);
     initialEmptyCartItem = cartItemWrapper;
-    return;
   }
-
-  const cartItemWrapper = generateCartItem(popularProd);
-  generateCartBody(cartItemWrapper);
 }
 
 const handleRemoveFromCart = () => {
@@ -307,21 +346,20 @@ const handleRemoveFromCart = () => {
         const { cartItemWrapper } = generateCartItem(popularProd);
         generateCartBody(cartItemWrapper);
         initialEmptyCartItem = cartItemWrapper;
-        return;
       }
     });
   });
 };
 
-const handleAddToCart = async () => {
-  const prodName = window.location.pathname.split('/')[2];
-  const product = await getProduct(prodName);
-  const { cartItemWrapper, itemPrice } = generateCartItem(product);
-
+const handleAddToCart = () => {
   const btns = document.querySelectorAll('[data-action="add-to-cart"]');
   btns.forEach((btn) =>
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.preventDefault();
+      const prodName = window.location.pathname.split('/')[2];
+      const product = await getProduct(prodName);
+      const { cartItemWrapper, itemPrice } = generateCartItem(product);
+
       totalPrice += itemPrice;
       checkoutBtnPrice &&
         (checkoutBtnPrice.innerText = currencyNormalize(totalPrice));
@@ -339,6 +377,8 @@ const setNotEmptyCartBadge = () => {
 
 document.addEventListener('DOMContentLoaded', async (e) => {
   popularProd = await getProduct('3d');
+
+  console.log(popularProd);
 
   setNotEmptyCartBadge();
   handleEmptyCart();

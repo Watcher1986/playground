@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capture content api & spellcheck atribute</title>
+  </head>
+  <body>
+    <p>
+      <label for="soundFile">What does your voice sound like?:</label>
+      <input type="file" id="soundFile" capture="user" accept="audio/*" />
+    </p>
+    <p>
+      <label for="videoFile">Upload a video:</label>
+      <input
+        type="file"
+        id="videoFile"
+        capture="environment"
+        accept="video/*"
+      />
+    </p>
+    <p>
+      <label for="imageFile">Upload a photo of yourself:</label>
+      <input type="file" id="imageFile" capture="user" accept="image/*" />
+    </p>
+
+    <h3>Example of Enabling SpellCheck</h3>
+    <form>
+      <p>
+        You can specify spellcheck to false if you wanna disable spell checking
+        <input type="text" spellcheck="true" />
+      </p>
+
+      <p>
+        <textarea spellcheck="true"></textarea>
+      </p>
+      <button type="reset">Reset</button>
+    </form>
+    <h3>
+      The accept attribute specifies the types of files that the server accepts
+      (that can be submitted through a file upload).
+    </h3>
+    <label for="imageFile">Upload a photo of yourself:</label>
+    <input type="file" id="imageFile" capture="user" accept="image/*" />
+    <ul>
+      <li>
+        file_extension : It Specify the file extension(s) like .gif, .jpg, .png,
+        .doc the user can pick from.
+      </li>
+      <li>audio/* : The user can pick all sound files.</li>
+      <li>video/* : The user can pick all video files.</li>
+      <li>
+        image/* : A valid media type, with no parameters. Look at IANA Media
+        Types for a complete list standard media types
+      </li>
+      <li>media_type : A valid media type without parameters.</li>
+    </ul>
+    <blockquote>
+      <b
+        >Note: The accept attribute can only be used with &lt;input
+        type="file"&gt;</b
+      >
+    </blockquote>
+  </body>
+</html>
